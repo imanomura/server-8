@@ -38,6 +38,13 @@ loginForm.addEventListener('submit', async (e) => {
     body: JSON.stringify({ username, password })
   });
 
+  if (res.ok) {
+    location.href = 'index.html';
+  } else {
+    const data = await res.json();
+    document.querySelector('p').textContent = data.message;
+  }
+
   const data = await res.json();
   result.textContent = data.message;
 });
@@ -70,6 +77,6 @@ logoutButton.addEventListener('click', async (e) => {
     result.textContent = 'ログアウトしました';
     loginUser.textContent = '';
   } else {
-    result.textContent = 'ログインしていません'
+    result.textContent = 'ログインしていません';
   }
 });

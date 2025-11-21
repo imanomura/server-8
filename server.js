@@ -5,7 +5,7 @@ import { serveStatic } from 'jsr:@hono/hono/deno';
 import { jwt, sign } from 'jsr:@hono/hono/jwt';
 
 // クッキー
-import { setCookie, deleteCookie } from 'jsr:@hono/hono/cookie';
+import { setCookie, deleteCookie, getCookie } from 'jsr:@hono/hono/cookie';
 
 // パスワードのハッシュ化（bcrypt）
 import { hash, verify } from 'jsr:@felix/bcrypt';
@@ -89,6 +89,26 @@ app.post('/api/login', async (c) => {
   // レスポンス
   return c.json({ message: 'ログイン成功', username: user.username });
 });
+
+app.use('/signup.html', async (c, next) => {
+  const token = getCookie(c, COOKIE_NAME);
+  if (token) {
+    return c.redirect('/index.html');
+  }
+  await next();
+});
+
+app.use('/login.html', async (c, next) => {
+  const token = getCookie(c, COOKIE_NAME);
+  if (token) {
+    return c.redirect('/index.html');
+  }
+  await next();
+});
+
+app.get('/*', serveStatic({ root: './public' }));
+
+Deno.serve(app.fetch);
 
 /* 上記以外の /api 以下へのアクセスにはログインが必要 */
 app.use('/api/*', jwt({ secret: JWT_SECRET, cookie: COOKIE_NAME }));
